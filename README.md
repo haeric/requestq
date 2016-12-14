@@ -15,15 +15,16 @@ npm install promise-polyfill --save-exact
 
 ## Usage
 ```
+import {RequestQueue, RequestPriority} from 'request-queue';
 const queue = new RequestQueue({
     retries: 3,
     concurrency: 5 
 })
 var terms = queue.get('https://example.com/terms.txt), {
-    priority: RequestQueue.LOW
+    priority: RequestPriority.LOW
 })
 var names = queue.get('https://example.com/names.json', {
-    priority: RequestQueue.HIGHEST,
+    priority: RequestPriority.HIGHEST,
 })
 await Promise.all([names, terms])
 ```
