@@ -1,10 +1,10 @@
 declare var XDomainRequest: any
 
-enum RequestPriority {
+export enum RequestPriority {
   LOW, MEDIUM, HIGH, HIGHEST
 }
 
-enum RequestStatus {
+export enum RequestStatus {
   PENDING, SENDING, FAILED, DONE
 }
 
@@ -35,15 +35,19 @@ function openXHR (method: string, url: string, withCredentials: boolean): XMLHtt
 }
 
 
-class RequestQueue {
+export class RequestQueue {
   retries: number
   concurrency: number
 
   private queue: Array<Request> = []
+  private updateInterval: number
 
   constructor({ retries = 3, concurrency = 6} = {}) {
     this.retries = retries
-    this.concurrency = concurrency  
+    this.concurrency = concurrency
+    this.updateInterval = window.setInterval(() => {
+      this.update()
+    }, 16)
   }
 
   get(url: string, options: any): Promise<any> {
@@ -202,6 +206,8 @@ class Request {
 
   private xhr: XMLHttpRequest | null
 
+  private validImageMimetypes = ['image/jpeg', 'image/png', 'image/webp']
+
   /**
    * Creates an instance of Request.
    * 
@@ -246,11 +252,11 @@ class Request {
       if (['arraybuffer', 'text', 'json', 'blob'].indexOf(this.responseType) > -1) {
         xhr.responseType = this.responseType
       }
-      else if (this.responseType === 'image/jpeg') {
+      else if (this.responseType === 'image') {
         xhr.responseType = 'arraybuffer'
       }
       else {
-        throw new Error('reponseType can only be one of "arraybuffer", "text", "json", "blob", image/jpeg"')
+        throw new Error('reponseType can only be one of "arraybuffer", "text", "json", "blob", "image"')
       }
     }
 
@@ -304,15 +310,13 @@ class Request {
     if (this.responseType === 'json' && typeof response !== 'object') {
         response = JSON.parse(xhr.responseText)
     }
-    // TODO: Experimental, does not work on Safari 5.1
+    // Does not work on Safari 5.1
     // image/jpeg is actually loaded as arraybuffer, then packed
-    // in an Image. You can also do this by setting Image.src,
-    // but this allows us to look at headers and start thinking
-    // of progressive loading....
-    else if (this.responseType === 'image/jpeg') {
-      let arrayBufferView = new Uint8Array( xhr.response )
-      let blob = new Blob([arrayBufferView], {type: "image/jpeg"})
-      let imageUrl = URL.createObjectURL( blob )
+    // in an Image.
+    else if (this.responseType === 'image') {
+      let arrayBufferView = new Uint8Array(xhr.response)
+      let blob = new Blob([arrayBufferView], {type: xhr.getResponseHeader('Content-Type')})
+      let imageUrl = URL.createObjectURL(blob)
       response = new Image()
       response.src = imageUrl
       response.crossOrigin = "Anonymous"
@@ -336,41 +340,3 @@ class Request {
     this.xhr.abort()
   }
 }
-
-let requests = new RequestQueue({
-  retries: 3,
-  concurrency: 3
-})
-
-for (var index = 0; index < 5; index++) {
-  let r1 = requests.get(`https://httpbin.org/get?${index}`, {
-    priority: RequestPriority.LOW,
-    responseType: 'json'
-  }).then((response) => {
-    console.log(response)
-  }).catch(() => {
-    console.error('Uh oh1')
-  })
-
-  let r2 = requests.get(`https://httpbin.org/get?high=${index}`, {
-    priority: RequestPriority.HIGH,
-    responseType: 'json'
-  }).then((response) => {
-    console.log("high", response)
-  }).catch(() => {
-    console.error('Uh oh2')
-  })
-}
-
-requests.update()
-
-let r3 = requests.get(`https://httpbin.org/get?immediate`, {
-  priority: RequestPriority.HIGHEST,
-  responseType: 'json'
-}).then((response) => {
-  console.log("imm", response)
-}).catch(() => {
-  console.error('Uh oh3')
-})
-
-setInterval(() => requests.update(), 10)
