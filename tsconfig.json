@@ -3,6 +3,7 @@
         "module": "commonjs",
         "target": "es5",
         "noImplicitAny": true,
+        "noEmitOnError": true,
         "sourceMap": true,
         "strictNullChecks": true,
         "outDir": "dist/"

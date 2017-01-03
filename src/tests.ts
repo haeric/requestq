@@ -79,7 +79,7 @@ test('High concurrency', (t) => {
       t.pass()
     }).catch(() => {
       t.fail("Request failed")
-    })
+    }))
   }
 })
 
