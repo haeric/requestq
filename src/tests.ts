@@ -105,7 +105,7 @@ test('Highest priority postpones lower priority', (t) => {
 })
 
 test('Priority test', (t) => {
-  t.plan(2)
+  t.plan(12)
   const requests = new RequestQueue({
     retries: 3,
     concurrency: 3
@@ -118,6 +118,7 @@ test('Priority test', (t) => {
       priority: RequestPriority.LOW,
       responseType: 'json'
     }).then((response) => {
+      t.equal(doneHigh, 5)
       doneLow++
     }).catch(() => {
       console.error('Uh oh1')
@@ -127,6 +128,7 @@ test('Priority test', (t) => {
       priority: RequestPriority.HIGH,
       responseType: 'json'
     }).then((response) => {
+      t.equal(doneLow, 0)
       doneHigh++
     }).catch(() => {
       console.error('Uh oh2')
