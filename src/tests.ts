@@ -15,6 +15,8 @@ test('arraybuffer responseType', (t) => {
   }).then((response) => {
     t.assert(response instanceof ArrayBuffer)
     t.equal(response.byteLength, 10)
+  }).catch(() => {
+    t.fail("Request failed")
   })
 })
 
@@ -26,6 +28,8 @@ test('blob responseType', (t) => {
   }).then((response) => {
     t.assert(response instanceof Blob)
     t.equal(response.size, 10)
+  }).catch(() => {
+    t.fail("Request failed")
   })
 })
 
@@ -38,6 +42,8 @@ test('image responseTypes', (t) => {
     }).then((response) => {
       t.assert(response instanceof Image)
       document.body.appendChild(response)
+    }).catch(() => {
+      t.fail("Request failed")
     })
   })
 })
@@ -54,7 +60,7 @@ test('Low concurrency', (t) => {
     }).then((response) => {
       t.pass()
     }).catch(() => {
-      console.error('Uh oh1')
+      t.fail("Request failed")
     })
   }
 })
@@ -72,8 +78,8 @@ test('High concurrency', (t) => {
     }).then((response) => {
       t.pass()
     }).catch(() => {
-      console.error('Uh oh1')
-    }))
+      t.fail("Request failed")
+    })
   }
 })
 
@@ -89,6 +95,8 @@ test('Highest priority postpones lower priority', (t) => {
   }).then(() => {
     doneHigh = true;
     t.assert(doneHighest, "Highest priority request not done before lower priority")
+  }).catch(() => {
+    t.fail("Request failed")
   })
 
   // Force queue to send here, so that the previous request is in-flight
@@ -101,6 +109,8 @@ test('Highest priority postpones lower priority', (t) => {
   }).then(() => {
     doneHighest = true;
     t.assert(!doneHigh, "Lower priority request was done before higher priority")
+  }).catch(() => {
+    t.fail("Request failed")
   })
 })
 
@@ -121,7 +131,7 @@ test('Priority test', (t) => {
       t.equal(doneHigh, 5)
       doneLow++
     }).catch(() => {
-      console.error('Uh oh1')
+      t.fail("Request failed")
     })
 
     requests.get(`${TEST_URL}/get?high=${index}`, {
@@ -131,7 +141,7 @@ test('Priority test', (t) => {
       t.equal(doneLow, 0)
       doneHigh++
     }).catch(() => {
-      console.error('Uh oh2')
+      t.fail("Request failed")
     })
   }
 
@@ -144,6 +154,6 @@ test('Priority test', (t) => {
     t.equal(doneHigh, 2)
     t.equal(doneLow, 0)
   }).catch(() => {
-    console.error('Uh oh3')
+    t.fail("Request failed")
   })
 })
