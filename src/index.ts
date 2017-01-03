@@ -253,7 +253,7 @@ class Request {
         xhr.responseType = this.responseType
       }
       else if (this.responseType === 'image') {
-        xhr.responseType = 'arraybuffer'
+        xhr.responseType = 'blob'
       }
       else {
         throw new Error('reponseType can only be one of "arraybuffer", "text", "json", "blob", "image"')
@@ -310,13 +310,14 @@ class Request {
     if (this.responseType === 'json' && typeof response !== 'object') {
         response = JSON.parse(xhr.responseText)
     }
-    // Does not work on Safari 5.1
-    // image/jpeg is actually loaded as arraybuffer, then packed
-    // in an Image.
+    
+    // Interpret payload as an image (actually loaded as a blob,
+    // then packed into an image). Using XHR for images
+    // leaves duplicates in the Network Console, but allows
+    // progress events and aborts, which is quite nice.
+    // Does not work on Safari < 5.1
     else if (this.responseType === 'image') {
-      let arrayBufferView = new Uint8Array(xhr.response)
-      let blob = new Blob([arrayBufferView], {type: xhr.getResponseHeader('Content-Type')})
-      let imageUrl = URL.createObjectURL(blob)
+      let imageUrl = URL.createObjectURL(response)
       response = new Image()
       response.src = imageUrl
       response.crossOrigin = "Anonymous"
