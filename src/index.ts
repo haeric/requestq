@@ -39,7 +39,7 @@ export class RequestQueue {
   retries: number
   concurrency: number
 
-  private queue: Array<Request> = []
+  queue: Array<Request> = []
   private updateTimeout: number | null
 
   constructor({ retries = 3, concurrency = 6} = {}) {

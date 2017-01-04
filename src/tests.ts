@@ -7,15 +7,21 @@ import * as test from 'tape';
  */
 const TEST_URL = `https://httpbin.org`
 
-test('failure rejects promise', (t) => {
-  t.plan(1)
-  const requests = new RequestQueue()
+test('failure retries, then rejects promise', (t) => {
+  t.plan(2)
+  const requests = new RequestQueue({
+    retries: 3
+  })
   requests.get(`${TEST_URL}/status/500`)
   .then((response) => {
     t.fail("Promise resolved, but should reject")
   }).catch(() => {
+    t.equal(request.sendAttempts, 3)
     t.pass("Promise should reject on a 500")
   })
+  // Sneak the request out of the queue, so we can inspect it
+  // in our promise callback above
+  let request = requests.queue[0]
 })
 
 test('arraybuffer responseType', (t) => {
@@ -154,7 +160,8 @@ test('Priority test', (t) => {
       t.fail("Request failed")
     })
   }
-
+  
+  // Wait a bit so that the first requests are actually sent
   window.setTimeout(() => {
     requests.get(`${TEST_URL}/get?immediate`, {
       priority: RequestPriority.HIGHEST,
