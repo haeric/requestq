@@ -15,19 +15,40 @@ npm install promise-polyfill --save-exact
 
 ## Usage
 ```
-import {RequestQueue, RequestPriority} from 'request-queue';
-const queue = new RequestQueue({
-    retries: 3,
-    concurrency: 5 
+import {RequestQueue} from 'request-queue';
+const requests = new RequestQueue()
+requests.get('https://example.com/terms.txt).then((response) => {
+  console.log('Got terms: ', response)  
+}).catch(() => {
+  console.error('Request failed')
 })
-var terms = queue.get('https://example.com/terms.txt), {
-    priority: RequestPriority.LOW
-})
-var names = queue.get('https://example.com/names.json', {
-    priority: RequestPriority.HIGHEST,
-})
-await Promise.all([names, terms])
 ```
+
+## Advanced Usage
+```
+import {RequestQueue, RequestPriority} from 'request-queue';
+const requests = new RequestQueue({
+    retries: 3,
+    concurrency: 5
+})
+let terms = requests.get('https://example.com/terms.txt), {
+  priority: RequestPriority.LOW
+}).then((response) => {
+  console.log('Got terms: ' + response)  
+}).catch(() => {
+  console.error('Request failed after 3 retries')
+})
+let names = requests.get('https://example.com/names.json', {
+    priority: RequestPriority.HIGHEST,
+    responseType: 'json'
+}).then((response) => {
+  // Use the response object
+}).catch(() => {
+  console.error('Request failed after 3 retries')
+})
+await Promise.all([terms, names])
+```
+
 ## Documentation
 ### new RequestQueue(options)
 Makes a new RequestQueue. Options can be:
@@ -55,7 +76,28 @@ the request is done, or rejects if it fails
         * text: Returns the response as text
         * blob: Returns a Blob
         * arraybuffer: Returns an ArrayBuffer
+        * image: Parses the response as an Image
     * headers: Object of additional headers to set
 
 ### RequestQueue.get(url, options)
-Shorthand for RequestQueue.request("GET" ...). Similar shorthands exist for POST, PUT, PATCH, DELETE, HEAD and OPTIONS.
+Shorthand for RequestQueue.request("GET" ...).
+
+### RequestQueue.post(url, options)
+Shorthand for RequestQueue.request("POST" ...).
+
+### RequestQueue.patch(url, options)
+Shorthand for RequestQueue.request("PATCH" ...).
+
+### RequestQueue.delete(url, options)
+Shorthand for RequestQueue.request("DELETE" ...).
+
+### RequestQueue.head(url, options)
+Shorthand for RequestQueue.request("HEAD" ...).
+
+### RequestQueue.options(url, options)
+Shorthand for RequestQueue.request("options" ...).
+
+## FAQ
+Why are you not using the Fetch API?
+* The Fetch API does support aborting a request, which is required for 
+high priority requests to abort and requeue lower priority requests.
