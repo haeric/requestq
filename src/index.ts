@@ -40,45 +40,42 @@ export class RequestQueue {
   concurrency: number
 
   private queue: Array<Request> = []
-  private updateInterval: number
+  private updateTimeout: number | null
 
   constructor({ retries = 3, concurrency = 6} = {}) {
     this.retries = retries
     this.concurrency = concurrency
-    this.updateInterval = window.setInterval(() => {
-      this.update()
-    }, 16)
   }
 
-  get(url: string, options: any): Promise<any> {
+  get(url: string, options?: any): Promise<any> {
     return this.request("GET", url, options)
   }
 
-  head(url: string, options: any): Promise<any> {
+  head(url: string, options?: any): Promise<any> {
     return this.request("HEAD", url, options)
   }
 
-  options(url: string, options: any): Promise<any> {
+  options(url: string, options?: any): Promise<any> {
     return this.request("OPTIONS", url, options)
   }
 
-  post(url: string, options: any): Promise<any> {
+  post(url: string, options?: any): Promise<any> {
     return this.request("POST", url, options)
   }
 
-  put(url: string, options: any): Promise<any> {
+  put(url: string, options?: any): Promise<any> {
     return this.request("PUT", url, options)
   }
 
-  patch(url: string, options: any): Promise<any> {
+  patch(url: string, options?: any): Promise<any> {
     return this.request("PATCH", url, options)
   }
 
-  delete(url: string, options: any): Promise<any> {
+  delete(url: string, options?: any): Promise<any> {
     return this.request("DELETE", url, options)
   }
 
-  request(method: string, url: string, options: any): Promise<any> {
+  request(method: string, url: string, options?: any): Promise<any> {
     let req = new Request(method, url, options)
     this.enqueue(req)
     return req.promise
@@ -93,12 +90,13 @@ export class RequestQueue {
     while (req = this.getNextPendingRequest()) {
       this.sendRequest(req)
     }
-    // Cancel any requests put us over our concurrency
-    // This happens when immediate requests bump other requests
+    // Cancel any requests that put us over our concurrency
+    // This happens when HIGHEST priority requests bump other requests
     while (req = this.getNextOverflowingRequest()) {
       req.abort()
       req.status = RequestStatus.PENDING
     }
+    this.updateTimeout = null
   }
 
   /**
@@ -117,6 +115,14 @@ export class RequestQueue {
       }
     }
     this.queue.splice(index, 0, request)
+    // Update queue as soon as possible after this,
+    // sending the request. Waiting this way allows for queueing of requests with
+    // different priorities to be sent in the right order
+    if (!this.updateTimeout) {
+      this.updateTimeout = window.setTimeout(() => {
+        this.update()
+      }, 1)
+    }
   }
 
   /**
@@ -131,6 +137,8 @@ export class RequestQueue {
       throw new Error("Can't dequeue request not in queue")
     }
     this.queue.splice(index, 1)
+    // Send new requests since this one is gone
+    this.update()
   }
 
   /**
@@ -159,30 +167,38 @@ export class RequestQueue {
   private getNextOverflowingRequest(): Request | null {
     for (let index = this.concurrency; index < this.queue.length; index++) {
       let element = this.queue[index]
-      if (element.status === RequestStatus.SENDING && element.priority != RequestPriority.HIGHEST) {
+      if (element.status === RequestStatus.SENDING && element.priority !== RequestPriority.HIGHEST) {
         return element
       }
     }
     return null
   }
 
+  /**
+   * Handle the actual sending of a request, statuses,
+   * retries, error and success callbacks
+   * 
+   * @private
+   */
   private sendRequest(req: Request) {
     req.status = RequestStatus.SENDING
-    req.send().then((e: any) => {
+    req.send().then((response: any) => {
       req.status = RequestStatus.DONE
       this.dequeue(req)
-      req.onDone(e)
+      req.onDone(response)
     }).catch((e: any) => {
       if (req.sendAttempts < this.retries) {
         req.status = RequestStatus.PENDING
+        // Re-send request
+        this.update()
         console.warn(`Retried ${req.url}`)
         console.warn(e)
       }
       else {
         req.status = RequestStatus.FAILED
-        req.onFail()
         this.dequeue(req)
         console.warn(`Failed ${req.url}`)
+        req.onFail()
       }
     })
   }
@@ -205,8 +221,6 @@ class Request {
   onFail: Function
 
   private xhr: XMLHttpRequest | null
-
-  private validImageMimetypes = ['image/jpeg', 'image/png', 'image/webp']
 
   /**
    * Creates an instance of Request.
@@ -315,7 +329,7 @@ class Request {
     // then packed into an image). Using XHR for images
     // leaves duplicates in the Network Console, but allows
     // progress events and aborts, which is quite nice.
-    // Does not work on Safari < 5.1
+    // Does not work on Safari < 6
     else if (this.responseType === 'image') {
       let imageUrl = URL.createObjectURL(response)
       response = new Image()
