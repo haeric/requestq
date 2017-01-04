@@ -56,16 +56,16 @@ await Promise.all([terms, names])
 ## Documentation
 #### new RequestQueue(options)
 Makes a new RequestQueue. Options can be:
-* retries: number of times a GET request will be retried on errors. (Default: 3)
+* **retries**: number of times a GET request will be retried on errors. (Default: 3)
   * Only GET requests are retried, as retrying POST can create duplicate objects or unwanted effects.
-* concurrency: number of concurrent requests the queue can have in-flight (Default: 6)
+* **concurrency**: number of concurrent requests the queue can have in-flight (Default: 6)
 
 #### RequestQueue.request(method, url, options)
 Puts request in the queue. Returns a promise that resolves when
-the request is done, or rejects if it fails
-* method: the HTTP method for the request, e.g. "GET"
-* url: The URL for the request
-* Options:
+the request is done, or rejects if it fails.
+* **method**: the HTTP method for the request, e.g. "GET"
+* **url**: The URL for the request
+* **options**:
     * priority: Defines the order in which requests get sent. One of the following:
         * RequestQueue.LOW
         * RequestQueue.MEDIUM (default) 
