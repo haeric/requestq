@@ -90,7 +90,7 @@ the request is done, or rejects if it fails
 #### RequestQueue.delete(url, options)
 #### RequestQueue.head(url, options)
 #### RequestQueue.options(url, options)
-Shorthands for RequestQueue.request("<method>" ...).
+Shorthands for RequestQueue.request("*method*" ...).
 
 ## FAQ
 Why are you not using the Fetch API?
