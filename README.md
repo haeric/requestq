@@ -33,6 +33,7 @@ const requests = new RequestQueue({
     retries: 3,
     concurrency: 5
 })
+
 let terms = requests.get('https://example.com/terms.txt), {
   priority: RequestPriority.LOW
 }).then((response) => {
@@ -40,6 +41,7 @@ let terms = requests.get('https://example.com/terms.txt), {
 }).catch(() => {
   console.error('Request failed after 3 retries')
 })
+
 let names = requests.get('https://example.com/names.json', {
     priority: RequestPriority.HIGHEST,
     responseType: 'json'
@@ -83,22 +85,12 @@ the request is done, or rejects if it fails
     * headers: Object of additional headers to set
 
 #### RequestQueue.get(url, options)
-Shorthand for RequestQueue.request("GET" ...).
-
 #### RequestQueue.post(url, options)
-Shorthand for RequestQueue.request("POST" ...).
-
 #### RequestQueue.patch(url, options)
-Shorthand for RequestQueue.request("PATCH" ...).
-
 #### RequestQueue.delete(url, options)
-Shorthand for RequestQueue.request("DELETE" ...).
-
 #### RequestQueue.head(url, options)
-Shorthand for RequestQueue.request("HEAD" ...).
-
 #### RequestQueue.options(url, options)
-Shorthand for RequestQueue.request("options" ...).
+Shorthands for RequestQueue.request("<method>" ...).
 
 ## FAQ
 Why are you not using the Fetch API?
