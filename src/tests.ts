@@ -7,6 +7,17 @@ import * as test from 'tape';
  */
 const TEST_URL = `https://httpbin.org`
 
+test('failure rejects promise', (t) => {
+  t.plan(1)
+  const requests = new RequestQueue()
+  requests.get(`${TEST_URL}/status/500`)
+  .then((response) => {
+    t.fail("Promise resolved, but should reject")
+  }).catch(() => {
+    t.pass("Promise should reject on a 500")
+  })
+})
+
 test('arraybuffer responseType', (t) => {
   t.plan(2)
   const requests = new RequestQueue()
@@ -90,6 +101,7 @@ test('Highest priority postpones lower priority', (t) => {
   })
 
   let doneHigh = false;
+  let doneHighest = false;
   requests.get(TEST_URL, {
     priority: RequestPriority.HIGH
   }).then(() => {
@@ -99,19 +111,17 @@ test('Highest priority postpones lower priority', (t) => {
     t.fail("Request failed")
   })
 
-  // Force queue to send here, so that the previous request is in-flight
-  // before the HIGHEST one comes in
-  requests.update()
-
-  let doneHighest = false;
-  requests.get(TEST_URL, {
-    priority: RequestPriority.HIGHEST
-  }).then(() => {
-    doneHighest = true;
-    t.assert(!doneHigh, "Lower priority request was done before higher priority")
-  }).catch(() => {
-    t.fail("Request failed")
-  })
+  // Wait a bit so that the first request is actually sent
+  window.setTimeout(() => {
+    requests.get(TEST_URL, {
+      priority: RequestPriority.HIGHEST
+    }).then(() => {
+      doneHighest = true;
+      t.assert(!doneHigh, "Lower priority request was done before higher priority")
+    }).catch(() => {
+      t.fail("Request failed")
+    })
+  }, 10)
 })
 
 test('Priority test', (t) => {
@@ -145,15 +155,15 @@ test('Priority test', (t) => {
     })
   }
 
-  requests.update()
-
-  requests.get(`${TEST_URL}/get?immediate`, {
-    priority: RequestPriority.HIGHEST,
-    responseType: 'json'
-  }).then((response) => {
-    t.equal(doneHigh, 2)
-    t.equal(doneLow, 0)
-  }).catch(() => {
-    t.fail("Request failed")
-  })
+  window.setTimeout(() => {
+    requests.get(`${TEST_URL}/get?immediate`, {
+      priority: RequestPriority.HIGHEST,
+      responseType: 'json'
+    }).then((response) => {
+      t.equal(doneHigh, 2)
+      t.equal(doneLow, 0)
+    }).catch(() => {
+      t.fail("Request failed")
+    })
+  }, 10)
 })
