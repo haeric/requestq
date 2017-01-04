@@ -16,6 +16,7 @@ npm install promise-polyfill --save-exact
 ## Usage
 ```
 import {RequestQueue} from 'request-queue';
+
 const requests = new RequestQueue()
 requests.get('https://example.com/terms.txt).then((response) => {
   console.log('Got terms: ', response)  
@@ -27,6 +28,7 @@ requests.get('https://example.com/terms.txt).then((response) => {
 ## Advanced Usage
 ```
 import {RequestQueue, RequestPriority} from 'request-queue';
+
 const requests = new RequestQueue({
     retries: 3,
     concurrency: 5
@@ -53,6 +55,7 @@ await Promise.all([terms, names])
 ### new RequestQueue(options)
 Makes a new RequestQueue. Options can be:
 * retries: number of times a GET request will be retried on errors. (Default: 3)
+  * Only GET requests are retried, as retrying POST can create duplicate objects or unwanted effects.
 * concurrency: number of concurrent requests the queue can have in-flight (Default: 6)
 
 ### RequestQueue.request(method, url, options)
@@ -76,7 +79,7 @@ the request is done, or rejects if it fails
         * text: Returns the response as text
         * blob: Returns a Blob
         * arraybuffer: Returns an ArrayBuffer
-        * image: Parses the response as an Image
+        * image: Returns an Image
     * headers: Object of additional headers to set
 
 ### RequestQueue.get(url, options)
