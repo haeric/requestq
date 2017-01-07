@@ -94,5 +94,5 @@ Shorthands for RequestQueue.request("*method*" ...).
 
 ## FAQ
 Why are you not using the Fetch API?
-* The Fetch API does support aborting a request, which is required for 
+* The Fetch API does not support aborting a request, which is required for 
 high priority requests to abort and requeue lower priority requests.
