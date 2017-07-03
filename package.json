@@ -1,9 +1,9 @@
 {
-  "name": "request-queue",
-  "version": "1.0.0",
-  "private": true,
+  "name": "requestq",
+  "version": "0.0.1",
   "description": "An intelligent queue for ajax requests in the browser.",
-  "main": "index.js",
+  "main": "./dist/index.js",
+  "types": "./dist/index.d.ts",
   "dependencies": {
     "typescript": "^2.3.4"
   },
@@ -25,8 +25,12 @@
     ]
   },
   "scripts": {
-    "test": "tape build/tests.js"
+    "test": "tape build/tests.js",
+    "prepublish": "tsc"
   },
+  "files": [
+
+  ],
   "author": "haeric",
-  "license": "ISC"
+  "license": "MIT"
 }

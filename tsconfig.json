@@ -6,6 +6,7 @@
         "noEmitOnError": true,
         "sourceMap": true,
         "strictNullChecks": true,
-        "outDir": "dist/"
+        "outDir": "dist/",
+        "declaration": true
     }
 }

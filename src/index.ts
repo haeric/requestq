@@ -12,7 +12,7 @@ export enum RequestStatus {
 /**
  * Utility: Cross-browser XHR request,
  * Only here to support IE <= 7...
- * 
+ *
  * @param {string} method
  * @param {string} url
  * @param {boolean} withCredentials
@@ -22,7 +22,7 @@ function openXHR (method: string, url: string, withCredentials: boolean): XMLHtt
   let xhr
   if (typeof XMLHttpRequest !== "undefined") {
     xhr = new XMLHttpRequest()
-    xhr.withCredentials = withCredentials  
+    xhr.withCredentials = withCredentials
   }
   else if (typeof XDomainRequest !== "undefined") {
     xhr = new XDomainRequest()
@@ -30,7 +30,7 @@ function openXHR (method: string, url: string, withCredentials: boolean): XMLHtt
   else {
     throw new Error("No XMLHTTPRequest or XDomainRequest... are you trying to run me in node? :(")
   }
-  xhr.open(method, url, true) 
+  xhr.open(method, url, true)
   return xhr
 }
 
@@ -83,7 +83,7 @@ export class RequestQueue {
 
   /**
    * Handle all queue changes, sending new requests etc
-   * 
+   *
    */
   update() {
     let req;
@@ -103,11 +103,11 @@ export class RequestQueue {
    * Enqueue a request, adding it to the right place
    * in the queue based on the priority:
    * Highest prioriy first, oldest requests first
-   * @private  
+   * @private
    * @param {Request} request
    */
   private enqueue(request: Request) {
-    
+
     for (var index = 0; index < this.queue.length; index++) {
       let element = this.queue[index]
       if (element.priority < request.priority) {
@@ -143,7 +143,7 @@ export class RequestQueue {
 
   /**
    * Get the next request that is ready to send
-   * 
+   *
    * @private
    * @returns {(Request | null)}
    */
@@ -160,7 +160,7 @@ export class RequestQueue {
   /**
    * Get the next request that is currently in flight
    * but pushes us over our concurrency limit
-   * 
+   *
    * @private
    * @returns {(Request | null)}
    */
@@ -177,7 +177,7 @@ export class RequestQueue {
   /**
    * Handle the actual sending of a request, statuses,
    * retries, error and success callbacks
-   * 
+   *
    * @private
    */
   private sendRequest(req: Request) {
@@ -204,18 +204,18 @@ export class RequestQueue {
   }
 }
 
-class Request {
+export class Request {
   url: string
   method: string
   priority: number
   responseType: string | null
-  
+
   body: string | null
   headers: any
 
   sendAttempts = 0
   status = RequestStatus.PENDING
-  
+
   promise: Promise<any>
   onDone: Function
   onFail: Function
@@ -224,18 +224,18 @@ class Request {
 
   /**
    * Creates an instance of Request.
-   * 
+   *
    * @param {string} method
    * @param {string} url
-   * @param {any} options: { 
-   *       priority = RequestPriority.MEDIUM, 
+   * @param {any} options: {
+   *       priority = RequestPriority.MEDIUM,
    *       responseType = null,
    *       body = null,
    *       headers = {}
    *     }
    */
-  constructor(method: string, url: string, { 
-      priority = RequestPriority.MEDIUM, 
+  constructor(method: string, url: string, {
+      priority = RequestPriority.MEDIUM,
       responseType = null,
       body = null,
       headers = {}
@@ -253,17 +253,19 @@ class Request {
       this.onFail = reject
     })
   }
-
   /**
    * Make and send this XHR
-   * 
+   *
    * @returns {Promise<any>}
    */
   send(): Promise<any> {
     const xhr = this.xhr = openXHR(this.method, this.url, false)
 
     if (this.responseType) {
-      if (['arraybuffer', 'text', 'json', 'blob'].indexOf(this.responseType) > -1) {
+      if (this.responseType === 'arraybuffer' ||
+          this.responseType === 'text' ||
+          this.responseType === 'json' ||
+          this.responseType === 'blob') {
         xhr.responseType = this.responseType
       }
       else if (this.responseType === 'image') {
@@ -277,7 +279,7 @@ class Request {
     if (this.responseType === 'json') {
       xhr.setRequestHeader('Accept', 'application/json')
     }
-    
+
     for (let key in this.headers) {
       xhr.setRequestHeader(key, this.headers[key])
     }
@@ -286,7 +288,7 @@ class Request {
       this.body = JSON.stringify(this.body)
       xhr.setRequestHeader('Content-Type', 'application/json')
     }
-    
+
     return new Promise((resolve, reject) => {
       xhr.onreadystatechange = (e: any) => {
         if (xhr.readyState === 4) {
@@ -297,7 +299,7 @@ class Request {
             }
             catch (e) {
               reject({error: "Payload was not valid JSON"})
-              return  
+              return
             }
             resolve(response)
           }
@@ -314,7 +316,7 @@ class Request {
   /**
    * Handle parsing the response into JSON or other types,
    * depending on this.responseType
-   * 
+   *
    * @param {*} xhr
    * @returns {*}
    */
@@ -324,7 +326,7 @@ class Request {
     if (this.responseType === 'json' && typeof response !== 'object') {
         response = JSON.parse(xhr.responseText)
     }
-    
+
     // Interpret payload as an image (actually loaded as a blob,
     // then packed into an image). Using XHR for images
     // leaves duplicates in the Network Console, but allows
@@ -344,9 +346,9 @@ class Request {
 
 
   /**
-   * 
-   * Abort this request. 
-   * 
+   *
+   * Abort this request.
+   *
    */
   abort () {
     if (this.xhr === null) {
