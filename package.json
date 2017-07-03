@@ -5,11 +5,10 @@
   "description": "An intelligent queue for ajax requests in the browser.",
   "main": "index.js",
   "dependencies": {
-    "@types/es6-promise": "0.0.32",
-    "@types/tape": "^4.2.28",
-    "typescript": "^2.1.4"
+    "typescript": "^2.3.4"
   },
   "devDependencies": {
+  	"@types/tape": "^4.2.28",
     "tape": "^4.6.3"
   },
   "testling": {
