@@ -1,9 +1,9 @@
 {
   "name": "requestq",
-  "version": "0.0.2",
+  "version": "0.0.5",
   "description": "An intelligent queue for ajax requests in the browser.",
-  "main": "./dist/index.js",
-  "types": "./dist/index.d.ts",
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
   "dependencies": {
     "typescript": "^2.3.4"
   },
@@ -29,7 +29,7 @@
     "prepublish": "tsc"
   },
   "files": [
-
+    "dist/"
   ],
   "author": "haeric",
   "license": "MIT"
