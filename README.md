@@ -1,4 +1,4 @@
-# Request-queue
+# requestq
 An intelligent queue for ajax requests in the browser:
 * Prioritize requests, even cancelling long-running low-priority requests when high-priority requests come in.
 * Throttle requests, executing only a set number at a time
@@ -6,7 +6,7 @@ An intelligent queue for ajax requests in the browser:
 
 ## Installation
 ```
-npm install request-queue --save
+npm install requestq --save
 ```
 If you need to support most browsers, you will also need a Promise polyfill if you do not already have one:
 ```
