@@ -15,7 +15,7 @@ npm install promise-polyfill --save-exact
 
 ## Usage
 ```
-import {RequestQueue} from 'request-queue';
+import {RequestQueue} from 'requestq';
 
 const requests = new RequestQueue()
 requests.get('https://example.com/terms.txt).then((response) => {
@@ -27,7 +27,7 @@ requests.get('https://example.com/terms.txt).then((response) => {
 
 ## Advanced Usage
 ```
-import {RequestQueue, RequestPriority} from 'request-queue';
+import {RequestQueue, RequestPriority} from 'requestq';
 
 const requests = new RequestQueue({
     retries: 3,
