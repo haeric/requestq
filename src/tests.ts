@@ -12,6 +12,7 @@ test('failure retries, then rejects promise', (t) => {
   const requests = new RequestQueue({
     retries: 3
   })
+
   requests.get(`${TEST_URL}/status/500`)
   .then((response) => {
     t.fail("Promise resolved, but should reject")
@@ -160,7 +161,7 @@ test('Priority test', (t) => {
       t.fail("Request failed")
     })
   }
-  
+
   // Wait a bit so that the first requests are actually sent
   window.setTimeout(() => {
     requests.get(`${TEST_URL}/get?immediate`, {
