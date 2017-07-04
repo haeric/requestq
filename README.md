@@ -97,3 +97,6 @@ Shorthands for RequestQueue.request("*method*" ...).
 Why are you not using the Fetch API?
 * The Fetch API does not support aborting a request, which is required for 
 high priority requests to abort and requeue lower priority requests.
+
+Why does this not support Node?
+* Keeping the library tiny. If you need a universal client, [axios](https://github.com/mzabriskie/axios) is really neat.
