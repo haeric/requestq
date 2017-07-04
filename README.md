@@ -1,8 +1,9 @@
 # requestq
-An intelligent queue for ajax requests in the browser:
+A tiny, intelligent queue for ajax requests in the browser:
 * Prioritize requests, even cancelling long-running low-priority requests when high-priority requests come in.
 * Throttle requests, executing only a set number at a time
 * Retry requests 
+* Only 2KB (minified and gzipped)
 
 ## Installation
 ```
