@@ -101,5 +101,9 @@ high priority requests to abort and requeue lower priority requests.
 Why does this not support Node?
 * Keeping the library tiny. If you need a universal client, [axios](https://github.com/mzabriskie/axios) is really neat.
 
+Does this library have Typescript declarations?
+* Yup :)
+
+
 ## License
 MIT
