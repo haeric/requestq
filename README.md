@@ -19,7 +19,7 @@ npm install promise-polyfill --save-exact
 import {RequestQueue} from 'requestq';
 
 const requests = new RequestQueue()
-requests.get('https://example.com/terms.txt).then((response) => {
+requests.get('https://example.com/terms.txt').then((response) => {
   console.log('Got terms: ', response)  
 }).catch(() => {
   console.error('Request failed')
@@ -55,13 +55,13 @@ await Promise.all([terms, names])
 ```
 
 ## Documentation
-#### new RequestQueue(options)
-Makes a new RequestQueue. Options can be:
+#### new RequestQueue({options})
+Makes a new RequestQueue. Options:
 * **retries**: number of times a GET request will be retried on errors. (Default: 3)
   * Only GET requests are retried, as retrying POST can create duplicate objects or unwanted effects.
 * **concurrency**: number of concurrent requests the queue can have in-flight (Default: 6)
 
-#### RequestQueue.request(method, url, options)
+#### RequestQueue.request(method, url, {options})
 Puts request in the queue. Returns a promise that resolves when
 the request is done, or rejects if it fails.
 * **method**: the HTTP method for the request, e.g. "GET"
@@ -85,12 +85,12 @@ the request is done, or rejects if it fails.
         * image: Returns an Image
     * headers: Object of additional headers to set
 
-#### RequestQueue.get(url, options)
-#### RequestQueue.post(url, options)
-#### RequestQueue.patch(url, options)
-#### RequestQueue.delete(url, options)
-#### RequestQueue.head(url, options)
-#### RequestQueue.options(url, options)
+#### RequestQueue.get(url, {options})
+#### RequestQueue.post(url, {options})
+#### RequestQueue.patch(url, {options})
+#### RequestQueue.delete(url, {options})
+#### RequestQueue.head(url, {options})
+#### RequestQueue.options(url, {options})
 Shorthands for RequestQueue.request("*method*" ...).
 
 ## FAQ
