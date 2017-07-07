@@ -236,7 +236,7 @@ export class Request {
       priority = RequestPriority.MEDIUM,
       responseType = null,
       body = null,
-      headers = {};
+      headers = {},
     } = {}) {
     this.url = url;
     this.method = method;
