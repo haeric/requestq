@@ -33,7 +33,6 @@ function openXHR (method: string, url: string, withCredentials: boolean): XMLHtt
   return xhr;
 }
 
-
 export class RequestQueue {
   retries: number;
   concurrency: number;
@@ -236,7 +235,7 @@ export class Request {
       priority = RequestPriority.MEDIUM,
       responseType = null,
       body = null,
-      headers = {};
+      headers = {},
     } = {}) {
     this.url = url;
     this.method = method;
@@ -251,6 +250,7 @@ export class Request {
       this.onFail = reject;
     });
   }
+
   /**
    * Make and send this XHR
    *
@@ -291,15 +291,8 @@ export class Request {
       xhr.onreadystatechange = (e: any) => {
         if (xhr.readyState === 4) {
           if (xhr.status === 200 || xhr.status === 201 || xhr.status === 204) {
-            let response
-            try {
-              response = this.parseResponse(this.xhr)
-            }
-            catch (e) {
-              reject({error: "Payload was not valid JSON"})
-              return
-            }
-            resolve(response)
+            return this.parseResponse(this.xhr)
+              .then((response) => { resolve(response); });
           }
           else if (xhr.status !== 0) {
             reject({status_code: xhr.status});
@@ -318,28 +311,40 @@ export class Request {
    * @param {*} xhr
    * @returns {*}
    */
-  parseResponse (xhr: any): any {
+  parseResponse (xhr: any): Promise<any> {
     // IE does not support responseType = 'json'
-    let response = xhr.response;
-    if (this.responseType === 'json' && typeof response !== 'object') {
-        response = JSON.parse(xhr.responseText);
-    }
+    return new Promise((resolve, reject) => {
+      try {
+        // IE does not support responseType = 'json'
+        let response = xhr.response;
+        if (this.responseType === 'json' && typeof response !== 'object') {
+            resolve(JSON.parse(xhr.responseText));
+        }
 
-    // Interpret payload as an image (actually loaded as a blob,
-    // then packed into an image). Using XHR for images
-    // leaves duplicates in the Network Console, but allows
-    // progress events and aborts, which is quite nice.
-    // Does not work on Safari < 6
-    else if (this.responseType === 'image') {
-      let imageUrl = URL.createObjectURL(response);
-      response = new Image();
-      response.src = imageUrl;
-      response.crossOrigin = 'Anonymous';
-      response.onload = function() {
-        URL.revokeObjectURL(imageUrl);
+        // Interpret payload as an image (actually loaded as a blob,
+        // then packed into an image). Using XHR for images
+        // leaves duplicates in the Network Console, but allows
+        // progress events and aborts, which is quite nice.
+        // Does not work on Safari < 6
+        else if (this.responseType === 'image') {
+          const imageUrl = URL.createObjectURL(response);
+          response = new Image();
+          response.src = imageUrl;
+          response.crossOrigin = 'Anonymous';
+          response.onload = function() {
+            URL.revokeObjectURL(imageUrl);
+            resolve(response);
+          }
+        }
+
+        else {
+          resolve(response);
+        }
       }
-    }
-    return response;
+      catch (e) {
+        reject({error: "Payload was not valid JSON"});
+      }
+    });
   }
 
   /**
