@@ -184,7 +184,8 @@ export class RequestQueue {
       this.dequeue(req)
       req.onDone(response)
     }).catch((e: any) => {
-      if (req.sendAttempts < this.retries) {
+      const retryCount = req.maxRetries ? req.maxRetries : this.retries
+      if (req.sendAttempts < retryCount) {
         req.status = RequestStatus.PENDING
         // Re-send request
         this.update()
@@ -205,6 +206,7 @@ export class Request {
   url: string
   method: string
   priority: number
+  maxRetries: number | null
   responseType: string | null
 
   body: string | null
@@ -228,7 +230,8 @@ export class Request {
    *       priority = RequestPriority.MEDIUM,
    *       responseType = null,
    *       body = null,
-   *       headers = {}
+   *       headers = {},
+   *       maxRetries = null
    *     }
    */
   constructor(method: string, url: string, {
@@ -236,6 +239,7 @@ export class Request {
     responseType = null,
     body = null,
     headers = {},
+    maxRetries = null,
     } = {}) {
     this.url = url
     this.method = method
@@ -244,7 +248,7 @@ export class Request {
     this.responseType = responseType
     this.body = body
     this.headers = headers
-
+    this.maxRetries = maxRetries
     this.promise = new Promise((resolve, reject) => {
       this.onDone = resolve
       this.onFail = reject
