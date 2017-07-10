@@ -8,9 +8,9 @@
     "typescript": "^2.4.1"
   },
   "devDependencies": {
-    "@types/tape": "^4.2.28",
+    "@types/tape": "^4.2.30",
     "browserify": "^14.4.0",
-    "tape": "^4.6.3",
+    "tape": "^4.7.0",
     "typescript-standard": "^0.3.30"
   },
   "testling": {

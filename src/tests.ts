@@ -7,7 +7,7 @@ import * as test from 'tape';
  */
 const TEST_URL = `https://httpbin.org`
 
-test('failure retries, then rejects promise', (t) => {
+test('failure retries, then rejects promise', (t : any) => {
   t.plan(2)
   const requests = new RequestQueue({
     retries: 3
@@ -25,7 +25,7 @@ test('failure retries, then rejects promise', (t) => {
   let request = requests.queue[0]
 })
 
-test('arraybuffer responseType', (t) => {
+test('arraybuffer responseType', (t : any) => {
   t.plan(2)
   const requests = new RequestQueue()
   requests.get(`${TEST_URL}/bytes/10`, {
@@ -38,7 +38,7 @@ test('arraybuffer responseType', (t) => {
   })
 })
 
-test('blob responseType', (t) => {
+test('blob responseType', (t : any) => {
   t.plan(2)
   const requests = new RequestQueue()
   requests.get(`${TEST_URL}/bytes/10`, {
@@ -51,7 +51,7 @@ test('blob responseType', (t) => {
   })
 })
 
-test('image responseTypes', (t) => {
+test('image responseTypes', (t : any) => {
   t.plan(3)
   const requests = new RequestQueue();
   ['jpeg', 'png', 'webp'].forEach(function (type) {
@@ -66,7 +66,7 @@ test('image responseTypes', (t) => {
   })
 })
 
-test('Low concurrency', (t) => {
+test('Low concurrency', (t : any) => {
   t.plan(5)
   const requests = new RequestQueue({
     concurrency: 1
@@ -83,7 +83,7 @@ test('Low concurrency', (t) => {
   }
 })
 
-test('High concurrency', (t) => {
+test('High concurrency', (t : any) => {
   t.plan(5)
   const requests = new RequestQueue({
     concurrency: 10
@@ -101,7 +101,7 @@ test('High concurrency', (t) => {
   }
 })
 
-test('Highest priority postpones lower priority', (t) => {
+test('Highest priority postpones lower priority', (t : any) => {
   t.plan(2)
   const requests = new RequestQueue({
     concurrency: 1
@@ -131,7 +131,7 @@ test('Highest priority postpones lower priority', (t) => {
   }, 10)
 })
 
-test('Priority test', (t) => {
+test('Priority test', (t : any) => {
   t.plan(12)
   const requests = new RequestQueue({
     retries: 3,
