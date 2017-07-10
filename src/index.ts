@@ -208,7 +208,7 @@ export class Request {
   priority: number
   maxRetries: number | null
   responseType: string | null
-
+  auth: string | null
   body: string | null
   headers: any
 
@@ -230,20 +230,22 @@ export class Request {
    *       priority = RequestPriority.MEDIUM,
    *       responseType = null,
    *       body = null,
-   *       headers = {},
-   *       maxRetries = null
+   *       auth = null,
+   *       maxRetries = null,
+   *       headers = {}
    *     }
    */
   constructor(method: string, url: string, {
     priority = RequestPriority.MEDIUM,
     responseType = null,
     body = null,
-    headers = {},
     maxRetries = null,
+    auth = null,
+    headers = {},
     } = {}) {
     this.url = url
     this.method = method
-
+    this.auth = auth
     this.priority = priority
     this.responseType = responseType
     this.body = body
@@ -280,6 +282,10 @@ export class Request {
 
     if (this.responseType === 'json') {
       xhr.setRequestHeader('Accept', 'application/json')
+    }
+
+    if(this.auth === 'string') {
+      xhr.setRequestHeader('Authorization', this.auth);
     }
 
     for (const key in this.headers) {
