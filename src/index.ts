@@ -232,10 +232,10 @@ export class Request {
    *     }
    */
   constructor(method: string, url: string, {
-      priority = RequestPriority.MEDIUM,
+    priority = RequestPriority.MEDIUM,
     responseType = null,
     body = null,
-    headers = {}
+    headers = {},
     } = {}) {
     this.url = url
     this.method = method
