@@ -5,12 +5,13 @@
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
   "dependencies": {
-    "typescript": "^2.3.4"
+    "typescript": "^2.4.1"
   },
   "devDependencies": {
     "@types/tape": "^4.2.28",
     "browserify": "^14.4.0",
-    "tape": "^4.6.3"
+    "tape": "^4.6.3",
+    "typescript-standard": "^0.3.30"
   },
   "testling": {
     "files": "dist/tests.js",
@@ -27,7 +28,8 @@
   },
   "scripts": {
     "test-browser": "tsc && browserify dist/tests.js > dist/tests.browser.js && open index.html",
-    "prepublish": "tsc"
+    "prepublish": "tsc",
+    "lint": "node_modules/.bin/standard"
   },
   "files": [
     "dist/"

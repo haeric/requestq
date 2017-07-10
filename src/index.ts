@@ -1,11 +1,11 @@
 declare var XDomainRequest: any
 
 export enum RequestPriority {
-  LOW, MEDIUM, HIGH, HIGHEST,
+  LOW, MEDIUM, HIGH, HIGHEST
 }
 
 export enum RequestStatus {
-  PENDING, SENDING, FAILED, DONE,
+  PENDING, SENDING, FAILED, DONE
 }
 
 /**
@@ -17,7 +17,7 @@ export enum RequestStatus {
  * @param {boolean} withCredentials
  * @returns
  */
-function openXHR (method: string, url: string, withCredentials: boolean): XMLHttpRequest {
+function openXHR(method: string, url: string, withCredentials: boolean): XMLHttpRequest {
   let xhr
   if (typeof XMLHttpRequest !== 'undefined') {
     xhr = new XMLHttpRequest()
@@ -40,7 +40,7 @@ export class RequestQueue {
   queue: Array<Request> = []
   private updateTimeout: number | null
 
-  constructor({ retries = 3, concurrency = 6} = {}) {
+  constructor({ retries = 3, concurrency = 6 } = {}) {
     this.retries = retries
     this.concurrency = concurrency
   }
@@ -105,7 +105,7 @@ export class RequestQueue {
    * @param {Request} request
    */
   private enqueue(request: Request) {
-    for (var index = 0; index < this.queue.length; index++) {
+    for (let index = 0; index < this.queue.length; index++) {
       const element = this.queue[index]
       if (element.priority < request.priority) {
         break
@@ -233,9 +233,9 @@ export class Request {
    */
   constructor(method: string, url: string, {
       priority = RequestPriority.MEDIUM,
-      responseType = null,
-      body = null,
-      headers = {},
+    responseType = null,
+    body = null,
+    headers = {}
     } = {}) {
     this.url = url
     this.method = method
@@ -261,9 +261,9 @@ export class Request {
 
     if (this.responseType) {
       if (this.responseType === 'arraybuffer' ||
-          this.responseType === 'text' ||
-          this.responseType === 'json' ||
-          this.responseType === 'blob') {
+        this.responseType === 'text' ||
+        this.responseType === 'json' ||
+        this.responseType === 'blob') {
         xhr.responseType = this.responseType
       }
       else if (this.responseType === 'image') {
@@ -295,7 +295,7 @@ export class Request {
               .then((response) => { resolve(response) })
           }
           else if (xhr.status !== 0) {
-            reject({status_code: xhr.status})
+            reject({ status_code: xhr.status })
           }
         }
       }
@@ -311,14 +311,14 @@ export class Request {
    * @param {*} xhr
    * @returns {*}
    */
-  parseResponse (xhr: any): Promise<any> {
+  parseResponse(xhr: any): Promise<any> {
     // IE does not support responseType = 'json'
     return new Promise((resolve, reject) => {
       try {
         // IE does not support responseType = 'json'
         let response = xhr.response
         if (this.responseType === 'json' && typeof response !== 'object') {
-            resolve(JSON.parse(xhr.responseText))
+          resolve(JSON.parse(xhr.responseText))
         }
 
         // Interpret payload as an image (actually loaded as a blob,
@@ -331,7 +331,7 @@ export class Request {
           response = new Image()
           response.src = imageUrl
           response.crossOrigin = 'Anonymous'
-          response.onload = function() {
+          response.onload = function () {
             URL.revokeObjectURL(imageUrl)
             resolve(response)
           }
@@ -342,7 +342,7 @@ export class Request {
         }
       }
       catch (e) {
-        reject({error: "Payload was not valid JSON"})
+        reject({ error: 'Payload was not valid JSON' })
       }
     })
   }
@@ -352,7 +352,7 @@ export class Request {
    * Abort this request.
    *
    */
-  abort () {
+  abort() {
     if (this.xhr === null) {
       throw new Error('Cannot abort unsent Request')
     }

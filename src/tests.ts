@@ -1,4 +1,4 @@
-import {RequestQueue, RequestPriority} from './index';
+import { RequestQueue, RequestPriority } from './index';
 import * as test from 'tape';
 
 /*
@@ -14,12 +14,12 @@ test('failure retries, then rejects promise', (t) => {
   })
 
   requests.get(`${TEST_URL}/status/500`)
-  .then((response) => {
-    t.fail("Promise resolved, but should reject")
-  }).catch(() => {
-    t.equal(request.sendAttempts, 3)
-    t.pass("Promise should reject on a 500")
-  })
+    .then((response) => {
+      t.fail('Promise resolved, but should reject')
+    }).catch(() => {
+      t.equal(request.sendAttempts, 3)
+      t.pass('Promise should reject on a 500')
+    })
   // Sneak the request out of the queue, so we can inspect it
   // in our promise callback above
   let request = requests.queue[0]
@@ -34,7 +34,7 @@ test('arraybuffer responseType', (t) => {
     t.assert(response instanceof ArrayBuffer)
     t.equal(response.byteLength, 10)
   }).catch(() => {
-    t.fail("Request failed")
+    t.fail('Request failed')
   })
 })
 
@@ -47,21 +47,21 @@ test('blob responseType', (t) => {
     t.assert(response instanceof Blob)
     t.equal(response.size, 10)
   }).catch(() => {
-    t.fail("Request failed")
+    t.fail('Request failed')
   })
 })
 
 test('image responseTypes', (t) => {
   t.plan(3)
   const requests = new RequestQueue();
-  ['jpeg', 'png', 'webp'].forEach(function(type) {
+  ['jpeg', 'png', 'webp'].forEach(function (type) {
     requests.get(`${TEST_URL}/image/${type}`, {
       responseType: 'image'
     }).then((response) => {
       t.assert(response instanceof Image)
       document.body.appendChild(response)
     }).catch(() => {
-      t.fail("Request failed")
+      t.fail('Request failed')
     })
   })
 })
@@ -71,14 +71,14 @@ test('Low concurrency', (t) => {
   const requests = new RequestQueue({
     concurrency: 1
   })
-  for (var index = 0; index < 5; index++) {
+  for (let index = 0; index < 5; index++) {
     requests.get(`${TEST_URL}/get?${index}`, {
       priority: RequestPriority.LOW,
       responseType: 'json'
     }).then((response) => {
       t.pass()
     }).catch(() => {
-      t.fail("Request failed")
+      t.fail('Request failed')
     })
   }
 })
@@ -89,14 +89,14 @@ test('High concurrency', (t) => {
     concurrency: 10
   })
   const promises = []
-  for (var index = 0; index < 5; index++) {
+  for (let index = 0; index < 5; index++) {
     promises.push(requests.get(`${TEST_URL}/get?${index}`, {
       priority: RequestPriority.LOW,
       responseType: 'json'
     }).then((response) => {
       t.pass()
     }).catch(() => {
-      t.fail("Request failed")
+      t.fail('Request failed')
     }))
   }
 })
@@ -113,9 +113,9 @@ test('Highest priority postpones lower priority', (t) => {
     priority: RequestPriority.HIGH
   }).then(() => {
     doneHigh = true;
-    t.assert(doneHighest, "Highest priority request not done before lower priority")
+    t.assert(doneHighest, 'Highest priority request not done before lower priority')
   }).catch(() => {
-    t.fail("Request failed")
+    t.fail('Request failed')
   })
 
   // Wait a bit so that the first request is actually sent
@@ -124,9 +124,9 @@ test('Highest priority postpones lower priority', (t) => {
       priority: RequestPriority.HIGHEST
     }).then(() => {
       doneHighest = true;
-      t.assert(!doneHigh, "Lower priority request was done before higher priority")
+      t.assert(!doneHigh, 'Lower priority request was done before higher priority')
     }).catch(() => {
-      t.fail("Request failed")
+      t.fail('Request failed')
     })
   }, 10)
 })
@@ -140,7 +140,7 @@ test('Priority test', (t) => {
 
   let doneLow = 0
   let doneHigh = 0
-  for (var index = 0; index < 5; index++) {
+  for (let index = 0; index < 5; index++) {
     requests.get(`${TEST_URL}/get?${index}`, {
       priority: RequestPriority.LOW,
       responseType: 'json'
@@ -148,7 +148,7 @@ test('Priority test', (t) => {
       t.equal(doneHigh, 5)
       doneLow++
     }).catch(() => {
-      t.fail("Request failed")
+      t.fail('Request failed')
     })
 
     requests.get(`${TEST_URL}/get?high=${index}`, {
@@ -158,7 +158,7 @@ test('Priority test', (t) => {
       t.equal(doneLow, 0)
       doneHigh++
     }).catch(() => {
-      t.fail("Request failed")
+      t.fail('Request failed')
     })
   }
 
@@ -171,7 +171,7 @@ test('Priority test', (t) => {
       t.equal(doneHigh, 2)
       t.equal(doneLow, 0)
     }).catch(() => {
-      t.fail("Request failed")
+      t.fail('Request failed')
     })
   }, 10)
 })
