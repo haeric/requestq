@@ -184,7 +184,7 @@ export class RequestQueue {
       this.dequeue(req)
       req.onDone(response)
     }).catch((e: any) => {
-      const retryCount = req.maxRetries ? req.maxRetries : this.retries
+      const retryCount = req.maxRetries || this.retries
       if (req.sendAttempts < retryCount) {
         req.status = RequestStatus.PENDING
         // Re-send request
