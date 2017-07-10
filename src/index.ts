@@ -184,7 +184,8 @@ export class RequestQueue {
       this.dequeue(req)
       req.onDone(response)
     }).catch((e: any) => {
-      if (req.sendAttempts < this.retries) {
+      const retryCount = req.maxRetries !== undefined ? req.maxTries : this.retries
+      if (req.sendAttempts < retryCount) {
         req.status = RequestStatus.PENDING
         // Re-send request
         this.update()
@@ -205,8 +206,9 @@ export class Request {
   url: string
   method: string
   priority: number
+  maxRetries: number | null
   responseType: string | null
-
+  auth: string | null
   body: string | null
   headers: any
 
@@ -228,6 +230,8 @@ export class Request {
    *       priority = RequestPriority.MEDIUM,
    *       responseType = null,
    *       body = null,
+   *       auth = null,
+   *       maxRetries = null,
    *       headers = {}
    *     }
    */
@@ -235,16 +239,18 @@ export class Request {
     priority = RequestPriority.MEDIUM,
     responseType = null,
     body = null,
+    maxRetries = null,
+    auth = null,
     headers = {},
     } = {}) {
     this.url = url
     this.method = method
-
+    this.auth = auth
     this.priority = priority
     this.responseType = responseType
     this.body = body
     this.headers = headers
-
+    this.maxRetries = maxRetries
     this.promise = new Promise((resolve, reject) => {
       this.onDone = resolve
       this.onFail = reject
@@ -276,6 +282,10 @@ export class Request {
 
     if (this.responseType === 'json') {
       xhr.setRequestHeader('Accept', 'application/json')
+    }
+
+    if(this.auth === 'string') {
+      xhr.setRequestHeader('Authorization', this.auth);
     }
 
     for (const key in this.headers) {
