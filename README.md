@@ -76,6 +76,7 @@ the request is done, or rejects if it fails.
         HIGHEST is special: It actually aborts HIGH, MEDIUM or LOW requests to be tried again,
         if there are too many requests in flight)
     * body: The request body if applicable. Either a string or an object (automatically JSON.stringified)
+    * maxRetries: The maximum number of retries that this request will use, overrides the main RequestQueue retries.
     * responseType: One of the following:
         * null (default, uses browser behavior)
         * json: Parses the response as JSON and returns an object. Sets Accept: application/json as a request header.

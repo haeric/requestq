@@ -8,7 +8,6 @@ export enum RequestStatus {
   PENDING, SENDING, FAILED, DONE
 }
 
-
 /**
  * Utility: Cross-browser XHR request,
  * Only here to support IE <= 7...
@@ -18,22 +17,21 @@ export enum RequestStatus {
  * @param {boolean} withCredentials
  * @returns
  */
-function openXHR (method: string, url: string, withCredentials: boolean): XMLHttpRequest {
+function openXHR(method: string, url: string, withCredentials: boolean): XMLHttpRequest {
   let xhr
-  if (typeof XMLHttpRequest !== "undefined") {
+  if (typeof XMLHttpRequest !== 'undefined') {
     xhr = new XMLHttpRequest()
     xhr.withCredentials = withCredentials
   }
-  else if (typeof XDomainRequest !== "undefined") {
+  else if (typeof XDomainRequest !== 'undefined') {
     xhr = new XDomainRequest()
   }
   else {
-    throw new Error("No XMLHTTPRequest or XDomainRequest... are you trying to run me in node? :(")
+    throw new Error('No XMLHTTPRequest or XDomainRequest... are you trying to run me in node? :(')
   }
   xhr.open(method, url, true)
   return xhr
 }
-
 
 export class RequestQueue {
   retries: number
@@ -42,41 +40,41 @@ export class RequestQueue {
   queue: Array<Request> = []
   private updateTimeout: number | null
 
-  constructor({ retries = 3, concurrency = 6} = {}) {
+  constructor({ retries = 3, concurrency = 6 } = {}) {
     this.retries = retries
     this.concurrency = concurrency
   }
 
   get(url: string, options?: any): Promise<any> {
-    return this.request("GET", url, options)
+    return this.request('GET', url, options)
   }
 
   head(url: string, options?: any): Promise<any> {
-    return this.request("HEAD", url, options)
+    return this.request('HEAD', url, options)
   }
 
   options(url: string, options?: any): Promise<any> {
-    return this.request("OPTIONS", url, options)
+    return this.request('OPTIONS', url, options)
   }
 
   post(url: string, options?: any): Promise<any> {
-    return this.request("POST", url, options)
+    return this.request('POST', url, options)
   }
 
   put(url: string, options?: any): Promise<any> {
-    return this.request("PUT", url, options)
+    return this.request('PUT', url, options)
   }
 
   patch(url: string, options?: any): Promise<any> {
-    return this.request("PATCH", url, options)
+    return this.request('PATCH', url, options)
   }
 
   delete(url: string, options?: any): Promise<any> {
-    return this.request("DELETE", url, options)
+    return this.request('DELETE', url, options)
   }
 
   request(method: string, url: string, options?: any): Promise<any> {
-    let req = new Request(method, url, options)
+    const req = new Request(method, url, options)
     this.enqueue(req)
     return req.promise
   }
@@ -86,7 +84,7 @@ export class RequestQueue {
    *
    */
   update() {
-    let req;
+    let req
     while (req = this.getNextPendingRequest()) {
       this.sendRequest(req)
     }
@@ -107,9 +105,8 @@ export class RequestQueue {
    * @param {Request} request
    */
   private enqueue(request: Request) {
-
     for (var index = 0; index < this.queue.length; index++) {
-      let element = this.queue[index]
+      const element = this.queue[index]
       if (element.priority < request.priority) {
         break
       }
@@ -132,7 +129,7 @@ export class RequestQueue {
    * @param {Request} req
    */
   private dequeue(req: Request) {
-    let index = this.queue.indexOf(req)
+    const index = this.queue.indexOf(req)
     if (index === -1) {
       throw new Error("Can't dequeue request not in queue")
     }
@@ -149,7 +146,7 @@ export class RequestQueue {
    */
   private getNextPendingRequest(): Request | null {
     for (let index = 0; index < this.queue.length && index < this.concurrency; index++) {
-      let element = this.queue[index]
+      const element = this.queue[index]
       if (element.status === RequestStatus.PENDING) {
         return element
       }
@@ -166,7 +163,7 @@ export class RequestQueue {
    */
   private getNextOverflowingRequest(): Request | null {
     for (let index = this.concurrency; index < this.queue.length; index++) {
-      let element = this.queue[index]
+      const element = this.queue[index]
       if (element.status === RequestStatus.SENDING && element.priority !== RequestPriority.HIGHEST) {
         return element
       }
@@ -187,7 +184,8 @@ export class RequestQueue {
       this.dequeue(req)
       req.onDone(response)
     }).catch((e: any) => {
-      if (req.sendAttempts < this.retries) {
+      const retryCount = req.maxRetries !== undefined ? req.maxTries : this.retries
+      if (req.sendAttempts < retryCount) {
         req.status = RequestStatus.PENDING
         // Re-send request
         this.update()
@@ -208,8 +206,9 @@ export class Request {
   url: string
   method: string
   priority: number
+  maxRetries: number | null
   responseType: string | null
-
+  auth: string | null
   body: string | null
   headers: any
 
@@ -231,28 +230,33 @@ export class Request {
    *       priority = RequestPriority.MEDIUM,
    *       responseType = null,
    *       body = null,
+   *       auth = null,
+   *       maxRetries = null,
    *       headers = {}
    *     }
    */
   constructor(method: string, url: string, {
-      priority = RequestPriority.MEDIUM,
-      responseType = null,
-      body = null,
-      headers = {}
+    priority = RequestPriority.MEDIUM,
+    responseType = null,
+    body = null,
+    maxRetries = null,
+    auth = null,
+    headers = {},
     } = {}) {
     this.url = url
     this.method = method
-
+    this.auth = auth
     this.priority = priority
     this.responseType = responseType
     this.body = body
     this.headers = headers
-
+    this.maxRetries = maxRetries
     this.promise = new Promise((resolve, reject) => {
       this.onDone = resolve
       this.onFail = reject
     })
   }
+
   /**
    * Make and send this XHR
    *
@@ -263,9 +267,9 @@ export class Request {
 
     if (this.responseType) {
       if (this.responseType === 'arraybuffer' ||
-          this.responseType === 'text' ||
-          this.responseType === 'json' ||
-          this.responseType === 'blob') {
+        this.responseType === 'text' ||
+        this.responseType === 'json' ||
+        this.responseType === 'blob') {
         xhr.responseType = this.responseType
       }
       else if (this.responseType === 'image') {
@@ -280,7 +284,11 @@ export class Request {
       xhr.setRequestHeader('Accept', 'application/json')
     }
 
-    for (let key in this.headers) {
+    if(this.auth === 'string') {
+      xhr.setRequestHeader('Authorization', this.auth);
+    }
+
+    for (const key in this.headers) {
       xhr.setRequestHeader(key, this.headers[key])
     }
 
@@ -293,18 +301,11 @@ export class Request {
       xhr.onreadystatechange = (e: any) => {
         if (xhr.readyState === 4) {
           if (xhr.status === 200 || xhr.status === 201 || xhr.status === 204) {
-            let response
-            try {
-              response = this.parseResponse(this.xhr)
-            }
-            catch (e) {
-              reject({error: "Payload was not valid JSON"})
-              return
-            }
-            resolve(response)
+            return this.parseResponse(this.xhr)
+              .then((response) => { resolve(response) })
           }
           else if (xhr.status !== 0) {
-            reject({status_code: xhr.status})
+            reject({ status_code: xhr.status })
           }
         }
       }
@@ -320,39 +321,50 @@ export class Request {
    * @param {*} xhr
    * @returns {*}
    */
-  parseResponse (xhr: any): any {
+  parseResponse(xhr: any): Promise<any> {
     // IE does not support responseType = 'json'
-    let response = xhr.response
-    if (this.responseType === 'json' && typeof response !== 'object') {
-        response = JSON.parse(xhr.responseText)
-    }
+    return new Promise((resolve, reject) => {
+      try {
+        // IE does not support responseType = 'json'
+        let response = xhr.response
+        if (this.responseType === 'json' && typeof response !== 'object') {
+          resolve(JSON.parse(xhr.responseText))
+        }
 
-    // Interpret payload as an image (actually loaded as a blob,
-    // then packed into an image). Using XHR for images
-    // leaves duplicates in the Network Console, but allows
-    // progress events and aborts, which is quite nice.
-    // Does not work on Safari < 6
-    else if (this.responseType === 'image') {
-      let imageUrl = URL.createObjectURL(response)
-      response = new Image()
-      response.src = imageUrl
-      response.crossOrigin = "Anonymous"
-      response.onload = function() {
-        URL.revokeObjectURL(imageUrl)
+        // Interpret payload as an image (actually loaded as a blob,
+        // then packed into an image). Using XHR for images
+        // leaves duplicates in the Network Console, but allows
+        // progress events and aborts, which is quite nice.
+        // Does not work on Safari < 6
+        else if (this.responseType === 'image') {
+          const imageUrl = URL.createObjectURL(response)
+          response = new Image()
+          response.src = imageUrl
+          response.crossOrigin = 'Anonymous'
+          response.onload = function () {
+            URL.revokeObjectURL(imageUrl)
+            resolve(response)
+          }
+        }
+
+        else {
+          resolve(response)
+        }
       }
-    }
-    return response
+      catch (e) {
+        reject({ error: 'Payload was not valid JSON' })
+      }
+    })
   }
-
 
   /**
    *
    * Abort this request.
    *
    */
-  abort () {
+  abort() {
     if (this.xhr === null) {
-      throw new Error("Cannot abort unsent Request")
+      throw new Error('Cannot abort unsent Request')
     }
     this.xhr.abort()
   }
