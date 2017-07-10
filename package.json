@@ -27,7 +27,7 @@
   },
   "scripts": {
     "test-browser": "tsc && browserify dist/tests.js > dist/tests.browser.js && open index.html",
-    "prepublish": "tsc"
+    "prepublish": "rm -rf dist/ && tsc"
   },
   "files": [
     "dist/"
