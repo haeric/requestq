@@ -1,11 +1,11 @@
 {
   "name": "requestq",
-  "version": "0.2.0",
+  "version": "0.2.1",
   "description": "An intelligent queue for ajax requests in the browser.",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
   "dependencies": {
-    "typescript": "^2.4.1"
+    "typescript": "^2.3.4"
   },
   "devDependencies": {
     "@types/tape": "^4.2.30",
