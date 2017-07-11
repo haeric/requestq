@@ -85,6 +85,7 @@ the request is done, or rejects if it fails.
         * arraybuffer: Returns an ArrayBuffer
         * image: Returns an Image
     * headers: Object of additional headers to set
+    * auth: contents of the 'Authorization' header if supplied
 
 #### RequestQueue.get(url, {options})
 #### RequestQueue.post(url, {options})
