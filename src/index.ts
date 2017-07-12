@@ -292,7 +292,7 @@ export class Request {
       xhr.setRequestHeader(key, this.headers[key])
     }
 
-    if (typeof this.body === 'object') {
+    if (this.body && typeof this.body === 'object') {
       this.body = JSON.stringify(this.body)
       xhr.setRequestHeader('Content-Type', 'application/json')
     }
