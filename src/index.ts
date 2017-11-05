@@ -309,6 +309,9 @@ export class Request {
           }
         }
       }
+      xhr.onerror = function (e) {
+        reject(e)
+      }
       xhr.send(this.body)
       this.sendAttempts++
     })

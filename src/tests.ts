@@ -175,3 +175,18 @@ test('Priority test', (t : any) => {
     })
   }, 10)
 })
+
+test('Blocked/Invalid client request', (t: any) => {
+  t.plan(1)
+  t.timeoutAfter(500)
+  const requests = new RequestQueue({
+    retries: 3,
+    concurrency: 3
+  })
+  requests.get(`https://Invalid-Url`)
+  .then((response) => {
+    t.fail('Client-side errors should fail properly')
+  }).catch(() => {
+    t.pass()
+  })
+})
