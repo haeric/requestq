@@ -1,6 +1,6 @@
 {
   "name": "requestq",
-  "version": "0.3.0",
+  "version": "0.4.0",
   "description": "An intelligent queue for ajax requests in the browser.",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
