@@ -284,7 +284,7 @@ export class Request {
       xhr.setRequestHeader('Accept', 'application/json')
     }
 
-    if(this.auth === 'string') {
+    if(this.auth && typeof this.auth === 'string') {
       xhr.setRequestHeader('Authorization', this.auth);
     }
 
