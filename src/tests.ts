@@ -25,6 +25,19 @@ test('failure retries, then rejects promise', (t : any) => {
   let request = requests.queue[0]
 })
 
+test('authorization header', (t : any) => {
+  t.plan(1)
+  const requests = new RequestQueue()
+  requests.get(`${TEST_URL}/headers`, {
+    auth: 'Test auth',
+    responseType: 'json'
+  }).then((response) => {
+    t.equal(response.headers.Authorization, 'Test auth')
+  }).catch(() => {
+    t.fail('Request failed')
+  })
+})
+
 test('arraybuffer responseType', (t : any) => {
   t.plan(2)
   const requests = new RequestQueue()
