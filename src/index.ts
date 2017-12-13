@@ -250,7 +250,7 @@ export class Request {
     this.url = url
     this.method = method
     this.auth = options.auth || null
-    this.priority = <number> options.priority
+    this.priority = options.priority || RequestPriority.MEDIUM
     this.responseType = options.responseType || null
     this.body = options.body || null
     this.headers = options.headers || {}
