@@ -8,6 +8,16 @@ export enum RequestStatus {
   PENDING, SENDING, FAILED, DONE
 }
 
+export interface Options {
+  priority?: RequestPriority;
+  responseType?: any;
+  body?: any;
+  maxRetries?: number;
+  auth?: any;
+  headers?: { [key: string]: any };
+  onProgress?: (evt: any) => void;
+}
+
 /**
  * Utility: Cross-browser XHR request,
  * Only here to support IE <= 7...
@@ -218,6 +228,7 @@ export class Request {
   promise: Promise<any>
   onDone: Function
   onFail: Function
+  onProgress?: (evt: any) => void;
 
   private xhr: XMLHttpRequest | null
 
@@ -235,22 +246,16 @@ export class Request {
    *       headers = {}
    *     }
    */
-  constructor(method: string, url: string, {
-    priority = RequestPriority.MEDIUM,
-    responseType = null,
-    body = null,
-    maxRetries = null,
-    auth = null,
-    headers = {},
-    } = {}) {
+  constructor(method: string, url: string, options: Options = {}) {
     this.url = url
     this.method = method
-    this.auth = auth
-    this.priority = priority
-    this.responseType = responseType
-    this.body = body
-    this.headers = headers
-    this.maxRetries = maxRetries
+    this.auth = options.auth
+    this.priority = <number> options.priority
+    this.responseType = options.responseType
+    this.body = options.body
+    this.headers = options.headers
+    this.maxRetries = options.maxRetries || null
+    this.onProgress = options.onProgress;
     this.promise = new Promise((resolve, reject) => {
       this.onDone = resolve
       this.onFail = reject
@@ -295,6 +300,10 @@ export class Request {
     if (this.body && typeof this.body === 'object') {
       this.body = JSON.stringify(this.body)
       xhr.setRequestHeader('Content-Type', 'application/json')
+    }
+
+    if (this.onProgress) {
+      xhr.onprogress = this.onProgress;
     }
 
     return new Promise((resolve, reject) => {
