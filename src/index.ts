@@ -220,7 +220,7 @@ export class Request {
   responseType: string | null
   auth: string | null
   body: string | null
-  headers: any
+  headers: { [key: string]: any }
 
   sendAttempts = 0
   status = RequestStatus.PENDING
@@ -228,7 +228,7 @@ export class Request {
   promise: Promise<any>
   onDone: Function
   onFail: Function
-  onProgress?: (evt: any) => void;
+  onProgress?: (evt: ProgressEvent) => void;
 
   private xhr: XMLHttpRequest | null
 
@@ -253,7 +253,7 @@ export class Request {
     this.priority = <number> options.priority
     this.responseType = options.responseType || null
     this.body = options.body || null
-    this.headers = options.headers
+    this.headers = options.headers || {}
     this.maxRetries = options.maxRetries || null
     this.onProgress = options.onProgress;
     this.promise = new Promise((resolve, reject) => {
