@@ -10,12 +10,12 @@ export enum RequestStatus {
 
 export interface Options {
   priority?: RequestPriority;
-  responseType?: any;
-  body?: any;
+  responseType?: string;
+  body?: string;
   maxRetries?: number;
-  auth?: any;
+  auth?: string;
   headers?: { [key: string]: any };
-  onProgress?: (evt: any) => void;
+  onProgress?: (evt: ProgressEvent) => void;
 }
 
 /**
@@ -249,10 +249,10 @@ export class Request {
   constructor(method: string, url: string, options: Options = {}) {
     this.url = url
     this.method = method
-    this.auth = options.auth
+    this.auth = options.auth || null
     this.priority = <number> options.priority
-    this.responseType = options.responseType
-    this.body = options.body
+    this.responseType = options.responseType || null
+    this.body = options.body || null
     this.headers = options.headers
     this.maxRetries = options.maxRetries || null
     this.onProgress = options.onProgress;
