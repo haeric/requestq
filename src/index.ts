@@ -206,7 +206,7 @@ export class RequestQueue {
         req.status = RequestStatus.FAILED
         this.dequeue(req)
         console.warn(`Failed ${req.url}`)
-        req.onFail()
+        req.onFail(e)
       }
     })
   }
