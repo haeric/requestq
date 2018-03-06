@@ -115,7 +115,8 @@ export class RequestQueue {
    * @param {Request} request
    */
   private enqueue(request: Request) {
-    for (var index = 0; index < this.queue.length; index++) {
+    let index = 0;
+    for (index = 0; index < this.queue.length; index++) {
       const element = this.queue[index]
       if (element.priority < request.priority) {
         break
