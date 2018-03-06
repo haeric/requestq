@@ -191,9 +191,9 @@ test('Priority test', (t : any) => {
 
 test('Blocked/Invalid client request', (t: any) => {
   t.plan(1)
-  t.timeoutAfter(500)
+  t.timeoutAfter(10000)
   const requests = new RequestQueue({
-    retries: 3,
+    retries: 0,
     concurrency: 3
   })
   requests.get(`https://Invalid-Url`)
@@ -201,5 +201,45 @@ test('Blocked/Invalid client request', (t: any) => {
     t.fail('Client-side errors should fail properly')
   }).catch(() => {
     t.pass()
+  })
+})
+
+test('post', (t: any) => {
+  t.plan(1)
+  const requests = new RequestQueue()
+  requests.post(`${TEST_URL}/post`, {
+    responseType: 'json',
+    body: {test: 'value'}
+  }).then((response) => {
+    const res = JSON.parse(response.data)
+    t.equal(res.test, 'value')
+  }).catch((err) => {
+    t.fail('Request failed' + err)
+  })
+})
+
+test('patch', (t: any) => {
+  t.plan(1)
+  const requests = new RequestQueue()
+  requests.patch(`${TEST_URL}/patch`, {
+    responseType: 'json',
+    body: {test: 'value'}
+  }).then((response) => {
+    const res = JSON.parse(response.data)
+    t.equal(res.test, 'value')
+  }).catch((err) => {
+    t.fail('Request failed' + err)
+  })
+})
+
+test('delete', (t: any) => {
+  t.plan(1)
+  const requests = new RequestQueue()
+  requests.delete(`${TEST_URL}/delete`, {
+    responseType: 'json',
+  }).then((response) => {
+    t.pass()
+  }).catch((err) => {
+    t.fail('Request failed' + err)
   })
 })
