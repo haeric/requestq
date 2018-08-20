@@ -220,7 +220,7 @@ export class Request {
   maxRetries: number | null
   responseType: string | null
   auth: string | null
-  body: string | null
+  body: string | FormData | null
   headers: { [key: string]: any }
 
   sendAttempts = 0
@@ -299,8 +299,10 @@ export class Request {
     }
 
     if (this.body && typeof this.body === 'object') {
-      this.body = JSON.stringify(this.body)
-      xhr.setRequestHeader('Content-Type', 'application/json')
+      if (!(this.body instanceof FormData)) {
+        this.body = JSON.stringify(this.body)
+        xhr.setRequestHeader('Content-Type', 'application/json')
+      }
     }
 
     if (this.onProgress) {
