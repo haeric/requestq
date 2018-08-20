@@ -115,7 +115,8 @@ export class RequestQueue {
    * @param {Request} request
    */
   private enqueue(request: Request) {
-    for (var index = 0; index < this.queue.length; index++) {
+    let index = 0;
+    for (index = 0; index < this.queue.length; index++) {
       const element = this.queue[index]
       if (element.priority < request.priority) {
         break
@@ -219,7 +220,7 @@ export class Request {
   maxRetries: number | null
   responseType: string | null
   auth: string | null
-  body: string | null
+  body: string | FormData | null
   headers: { [key: string]: any }
 
   sendAttempts = 0
@@ -298,8 +299,10 @@ export class Request {
     }
 
     if (this.body && typeof this.body === 'object') {
-      this.body = JSON.stringify(this.body)
-      xhr.setRequestHeader('Content-Type', 'application/json')
+      if (!(this.body instanceof FormData)) {
+        this.body = JSON.stringify(this.body)
+        xhr.setRequestHeader('Content-Type', 'application/json')
+      }
     }
 
     if (this.onProgress) {
