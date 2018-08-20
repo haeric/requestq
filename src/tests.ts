@@ -218,6 +218,26 @@ test('post', (t: any) => {
   })
 })
 
+test('post form with file', (t: any) => {
+  t.plan(2)
+  const requests = new RequestQueue()
+  requests.get(`${TEST_URL}/image/jpeg`, {responseType: 'arraybuffer'}).then((img) => {
+    const form = new FormData();  
+    var blob = new Blob( [ new Uint8Array( img ) ], { type: "image/jpeg" } );  
+    form.append('src', blob, 'image.jpg');
+    form.append('name', 'image.jpg');
+    requests.post(`${TEST_URL}/post`, {
+      responseType: 'json',
+      body: form,
+    }).then((response) => {
+      t.equal(response.form.name, 'image.jpg')
+      t.equal('src' in response.files, true)
+    }).catch((err) => {
+      t.fail('Request failed' + err)
+    })
+  })
+})
+
 test('patch', (t: any) => {
   t.plan(1)
   const requests = new RequestQueue()
