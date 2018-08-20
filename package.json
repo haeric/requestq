@@ -27,8 +27,8 @@
     ]
   },
   "scripts": {
-    "test-browser": "tsc && browserify dist/tests.js > dist/tests.browser.js && open index.html",
-    "prepublish": "rm -rf dist/ && tsc",
+    "test-browser": "node_modules/.bin/tsc && node_modules/.bin/browserify dist/tests.js > dist/tests.browser.js && open index.html",
+    "prepublish": "rm -rf dist/ && node_modules/.bin/tsc",
     "lint": "node_modules/.bin/standard"
   },
   "files": [
