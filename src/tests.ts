@@ -38,6 +38,52 @@ test('authorization header', (t : any) => {
   })
 })
 
+/**
+ * Tests request with cross-site credentials enabled
+ * Cookies should sent to external domain via request header
+ *
+ * Note: If this test starts to fail in Chrome >= 80, it may be due to
+ * httpbin not setting the `SameSite=None` or `secure` flags when creating cookies
+ * See https://www.chromestatus.com/feature/5088147346030592 and
+ * chrome://flags/#same-site-by-default-cookies
+ */
+test('xhr with credentials', (t : any) => {
+  t.plan(2)
+  const requests = new RequestQueue()
+  const cookie = 'token=xyz';
+  requests.get(`${TEST_URL}/cookies/set?${cookie}`).then(() => {
+    requests.get(`${TEST_URL}/headers`, {
+      withCredentials: true,
+      responseType: 'json'
+    }).then((response) => {
+      t.assert('Cookie' in response.headers)
+      t.equal(response.headers.Cookie, cookie);
+    });
+  }).catch(() => {
+    t.fail('Request failed')
+  })
+})
+
+/**
+ * Tests request with cross-site credentials disabled
+ * Cookies should not be passed to external origin via request headers
+ */
+test('xhr without credentials', (t : any) => {
+  t.plan(1)
+  const requests = new RequestQueue()
+  const cookie = 'token=xyz';
+  requests.get(`${TEST_URL}/cookies/set?${cookie}`).then(() => {
+    requests.get(`${TEST_URL}/headers`, {
+      withCredentials: false,
+      responseType: 'json'
+    }).then((response) => {
+      t.assert(!('Cookie' in response.headers));
+    });
+  }).catch(() => {
+    t.fail('Request failed')
+  })
+})
+
 test('arraybuffer responseType', (t : any) => {
   t.plan(2)
   const requests = new RequestQueue()

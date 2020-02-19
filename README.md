@@ -69,9 +69,9 @@ the request is done, or rejects if it fails.
 * **options**:
     * priority: Defines the order in which requests get sent. One of the following:
         * RequestQueue.LOW
-        * RequestQueue.MEDIUM (default) 
+        * RequestQueue.MEDIUM (default)
         * RequestQueue.HIGH
-        * RequestQueue.HIGHEST 
+        * RequestQueue.HIGHEST
         
         HIGHEST is special: It actually aborts HIGH, MEDIUM or LOW requests to be tried again,
         if there are too many requests in flight)
@@ -86,6 +86,7 @@ the request is done, or rejects if it fails.
         * image: Returns an Image
     * headers: Object of additional headers to set
     * auth: contents of the 'Authorization' header if supplied
+    * withCredentials: Enable or disable sending credentials with cross-site XHR requests (default false)
 
 #### RequestQueue.get(url, {options})
 #### RequestQueue.post(url, {options})

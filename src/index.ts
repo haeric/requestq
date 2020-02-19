@@ -14,6 +14,7 @@ export interface Options {
   body?: string;
   maxRetries?: number;
   auth?: string;
+  withCredentials?: boolean;
   headers?: { [key: string]: any };
   onProgress?: (evt: ProgressEvent) => void;
 }
@@ -220,6 +221,7 @@ export class Request {
   maxRetries: number | null
   responseType: string | null
   auth: string | null
+  withCredentials: boolean
   body: string | FormData | null
   headers: { [key: string]: any }
 
@@ -251,6 +253,7 @@ export class Request {
     this.url = url
     this.method = method
     this.auth = options.auth || null
+    this.withCredentials = options.withCredentials || false
     this.priority = options.priority || RequestPriority.MEDIUM
     this.responseType = options.responseType || null
     this.body = options.body || null
@@ -269,7 +272,7 @@ export class Request {
    * @returns {Promise<any>}
    */
   send(): Promise<any> {
-    const xhr = this.xhr = openXHR(this.method, this.url, false)
+    const xhr = this.xhr = openXHR(this.method, this.url, this.withCredentials)
 
     if (this.responseType) {
       if (this.responseType === 'arraybuffer' ||
