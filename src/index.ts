@@ -99,9 +99,10 @@ export class RequestQueue {
     while (req = this.getNextPendingRequest()) {
       this.sendRequest(req)
     }
-    // Cancel any requests that put us over our concurrency
+    // Cancel any GETs that put us over our concurrency
+    // We only cancel GETs, as we can't know that a POST, PATCH etc has not already reached the server
     // This happens when HIGHEST priority requests bump other requests
-    while (req = this.getNextOverflowingRequest()) {
+    while (req = this.getNextOverflowingGet()) {
       req.abort()
       req.status = RequestStatus.PENDING
     }
@@ -167,16 +168,18 @@ export class RequestQueue {
   }
 
   /**
-   * Get the next request that is currently in flight
+   * Get the next get request that is currently in flight
    * but pushes us over our concurrency limit
    *
    * @private
    * @returns {(Request | null)}
    */
-  private getNextOverflowingRequest(): Request | null {
+  private getNextOverflowingGet(): Request | null {
     for (let index = this.concurrency; index < this.queue.length; index++) {
       const element = this.queue[index]
-      if (element.status === RequestStatus.SENDING && element.priority !== RequestPriority.HIGHEST) {
+      if (element.status === RequestStatus.SENDING &&
+          element.priority !== RequestPriority.HIGHEST &&
+          element.method === "GET") {
         return element
       }
     }
